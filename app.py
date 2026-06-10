@@ -653,41 +653,40 @@ def main():
         """, unsafe_allow_html=True)
         uploaded = st.file_uploader("Upload Dataset", type=["csv","xlsx","xls"],
                                      label_visibility="collapsed")
+def main():
+    # ── Get dashboard ID from URL ──
+    query_params = st.query_params
+    dashboard_id = query_params.get("dashboard") or query_params.get("id")
 
-    if uploaded is None:
-        # ── Welcome screen ──
+    # ── Sidebar upload (للاختبار) ──
+    with st.sidebar:
+        st.markdown("""
+        <div style='margin-bottom:1.5rem'>
+            <div style='font-size:1.15rem;font-weight:700;color:#e2e8f0'>📊 Dashboard</div>
+            <div style='font-size:.75rem;color:#64748b;margin-top:2px'>Universal Data Explorer</div>
+        </div>
+        """, unsafe_allow_html=True)
+        uploaded = st.file_uploader("Upload Dataset", type=["csv","xlsx","xls"], label_visibility="collapsed")
+
+    # ── Load from URL ID (للـ Telegram) ──
+    if dashboard_id and not uploaded:
+        # هنا هنحتاج حل تخزين مجاني (هنعدله بعد ما يشتغل)
+        st.warning("📌 الداشبورد بيحتاج ملف. في النسخة الحالية ارفع الملف يدوياً.")
+        # TODO: نضيف دعم لتحميل الملف من رابط public لاحقاً
+
+    if uploaded is None and not dashboard_id:
+        # Welcome screen (نفس الكود القديم)
         st.markdown("""
         <div style='padding:2rem 0;'>
             <div class='dash-title'>Universal Dashboard</div>
             <div class='dash-sub'>Drop any CSV or Excel file — instant analytics.</div>
         </div>
         """, unsafe_allow_html=True)
-
-        st.markdown("""
-        <div class='upload-wrapper'>
-            <div class='upload-icon'>⬆️</div>
-            <div class='upload-title'>Upload your dataset</div>
-            <div class='upload-sub'>Supports CSV, XLSX, XLS<br>The dashboard adapts to any tabular data</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # Feature preview
-        cols = st.columns(3)
-        features = [
-            ("🧠","Smart Detection","Auto-identifies dates, numbers, and categories."),
-            ("📈","Dynamic Charts","Selects the best visualizations for your data."),
-            ("💡","Auto Insights","Surfaces top performers, trends, and outliers."),
-        ]
-        for col, (icon, title, desc) in zip(cols, features):
-            col.markdown(f"""
-            <div class='glass-card' style='text-align:center'>
-                <div style='font-size:2rem;margin-bottom:.5rem'>{icon}</div>
-                <div style='font-weight:600;margin-bottom:.3rem'>{title}</div>
-                <div style='color:#64748b;font-size:.82rem'>{desc}</div>
-            </div>""", unsafe_allow_html=True)
+        # ... (الباقي زي ما هو)
         return
 
-    # ── Load & parse ──
+    # باقي الكود (load_data وكل حاجة) يفضل زي ما هو
+    # ...    # ── Load & parse ──
     with st.spinner("Analyzing dataset…"):
         try:
             df_raw = load_data(uploaded.read(), uploaded.name)
